@@ -1,0 +1,9 @@
+{
+  "name": "debtpos-backup-topology",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static backup topology dashboard for DebtPOS Enterprise",
+  "scripts": {
+    "build": "node build.js"
+  }
+}
