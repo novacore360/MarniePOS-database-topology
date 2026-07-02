@@ -1,328 +1,962 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Backup Topology — DebtPOS Enterprise</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <title>Backup Topology — DebtPOS Enterprise</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
 
-<style>
-/* ============================================================
-   TOKENS
-============================================================ */
-:root{
-  --bg:            #0a0a0b;
-  --bg-elevated:   #0f0f11;
-  --surface:       #15151a;
-  --surface-2:     #1b1b21;
-  --border:        #292930;
-  --border-soft:   #1e1e24;
-  --text:          #eaeaef;
-  --text-dim:      #97979f;
-  --text-faint:    #58585f;
+  <style>
+    /* ============================================================
+       TOKENS — light & dark
+    ============================================================ */
+    * {
+      box-sizing: border-box;
+    }
 
-  --amber:         #e3a53f;
-  --amber-soft:    rgba(227,165,63,.10);
-  --amber-line:    rgba(227,165,63,.55);
+    :root {
+      /* dark defaults */
+      --bg: #0a0a0b;
+      --bg-elevated: #0f0f11;
+      --surface: #15151a;
+      --surface-2: #1b1b21;
+      --border: #292930;
+      --border-soft: #1e1e24;
+      --text: #eaeaef;
+      --text-dim: #97979f;
+      --text-faint: #58585f;
 
-  --blue:          #5b98d6;
-  --blue-soft:     rgba(91,152,214,.10);
-  --blue-line:     rgba(91,152,214,.55);
+      --amber: #e3a53f;
+      --amber-soft: rgba(227,165,63,.10);
+      --amber-line: rgba(227,165,63,.55);
 
-  --neutral-line:  rgba(234,234,239,.22);
-  --radius:        10px;
-  --radius-lg:     14px;
+      --blue: #5b98d6;
+      --blue-soft: rgba(91,152,214,.10);
+      --blue-line: rgba(91,152,214,.55);
 
-  --font-display:  'Space Grotesk', sans-serif;
-  --font-body:     'Inter', sans-serif;
-  --font-mono:     'JetBrains Mono', monospace;
-}
+      --neutral-line: rgba(234,234,239,.22);
+      --radius: 10px;
+      --radius-lg: 14px;
 
-*{box-sizing:border-box;}
-html,body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:var(--font-body);
-  -webkit-font-smoothing:antialiased;
-  scroll-behavior:smooth;
-}
-body{min-height:100vh;}
-::selection{background:var(--amber-soft);color:var(--text);}
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
 
-/* subtle grain / vignette so black isn't flat */
-.bg-texture{
-  position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(ellipse 900px 600px at 50% -10%, rgba(91,152,214,.06), transparent 60%),
-    radial-gradient(ellipse 700px 500px at 85% 15%, rgba(227,165,63,.045), transparent 60%);
-}
+    /* light theme */
+    [data-theme="light"] {
+      --bg: #f6f7fa;
+      --bg-elevated: #f0f1f5;
+      --surface: #ffffff;
+      --surface-2: #eef0f4;
+      --border: #d0d4dd;
+      --border-soft: #dce0e8;
+      --text: #1d1f27;
+      --text-dim: #4e535e;
+      --text-faint: #747a88;
+      --neutral-line: rgba(0,0,0,.15);
+      --amber-soft: rgba(227,165,63,.15);
+      --blue-soft: rgba(91,152,214,.15);
+      --amber-line: rgba(200,140,30,.6);
+      --blue-line: rgba(50,120,200,.6);
+    }
 
-a{color:var(--blue);text-decoration:none;}
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      scroll-behavior: smooth;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
 
-/* ============================================================
-   LAYOUT SHELL
-============================================================ */
-.shell{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 20px 80px;}
+    body {
+      min-height: 100vh;
+    }
 
-/* header */
-.topbar{
-  display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding:22px 0 18px;border-bottom:1px solid var(--border-soft);margin-bottom:34px;
-  flex-wrap:wrap;
-}
-.brand{display:flex;align-items:center;gap:11px;}
-.brand-mark{
-  width:30px;height:30px;border-radius:7px;
-  background:var(--surface-2);border:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:15px;
-}
-.brand-text .name{font-family:var(--font-display);font-weight:600;font-size:15px;letter-spacing:.01em;}
-.brand-text .role{font-size:11.5px;color:var(--text-faint);font-family:var(--font-mono);letter-spacing:.02em;}
+    ::selection {
+      background: var(--amber-soft);
+      color: var(--text);
+    }
 
-.clock{
-  font-family:var(--font-mono);font-size:12px;color:var(--text-dim);
-  display:flex;align-items:center;gap:8px;
-  padding:7px 12px;border:1px solid var(--border-soft);border-radius:100px;background:var(--surface);
-}
-.clock .dot{width:6px;height:6px;border-radius:50%;background:#4ec97b;box-shadow:0 0 0 3px rgba(78,201,123,.15);}
+    .bg-texture {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse 900px 600px at 50% -10%, rgba(91,152,214,.08), transparent 60%),
+        radial-gradient(ellipse 700px 500px at 85% 15%, rgba(227,165,63,.06), transparent 60%);
+      transition: background 0.2s ease;
+    }
 
-/* hero */
-.hero{margin-bottom:38px;}
-.hero h1{
-  font-family:var(--font-display);font-weight:600;font-size:clamp(26px,4vw,38px);
-  letter-spacing:-.01em;line-height:1.15;margin:0 0 10px;
-}
-.hero p.lead-copy{
-  color:var(--text-dim);font-size:15px;max-width:640px;line-height:1.65;margin:0 0 22px;
-}
-.stat-row{display:flex;gap:10px;flex-wrap:wrap;}
-.stat-chip{
-  border:1px solid var(--border);background:var(--surface);border-radius:var(--radius);
-  padding:10px 14px;min-width:118px;
-}
-.stat-chip .v{font-family:var(--font-display);font-size:19px;font-weight:600;}
-.stat-chip .l{font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;}
+    [data-theme="light"] .bg-texture {
+      background:
+        radial-gradient(ellipse 900px 600px at 50% -10%, rgba(91,152,214,.08), transparent 60%),
+        radial-gradient(ellipse 700px 500px at 85% 15%, rgba(227,165,63,.06), transparent 60%);
+    }
 
-/* legend */
-.legend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:26px;}
-.legend-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text-dim);font-family:var(--font-mono);}
-.legend-swatch{width:9px;height:9px;border-radius:50%;flex:none;}
-.legend-swatch.root{background:var(--text);}
-.legend-swatch.fs{background:var(--amber);}
-.legend-swatch.pg{background:var(--blue);}
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
 
-/* live status bar */
-.live-bar{
-  display:flex;align-items:center;justify-content:space-between;gap:14px;
-  margin-bottom:16px;flex-wrap:wrap;
-}
-.live-bar-text{font-family:var(--font-mono);font-size:12px;color:var(--text-dim);}
-.refresh-btn{
-  display:inline-flex;align-items:center;gap:7px;
-  background:var(--surface);border:1px solid var(--border);color:var(--text-dim);
-  font-family:var(--font-body);font-size:12.5px;font-weight:500;
-  padding:7px 13px;border-radius:100px;cursor:pointer;transition:.15s ease;
-}
-.refresh-btn:hover{color:var(--text);border-color:rgba(234,234,239,.4);background:var(--surface-2);}
-.refresh-btn.spinning i{animation:spin .7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
+    /* ============================================================
+       LAYOUT SHELL
+    ============================================================ */
+    .shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+    }
 
-.cors-warning{
-  display:flex;gap:11px;align-items:flex-start;
-  background:rgba(224,97,92,.08);border:1px solid rgba(224,97,92,.28);border-radius:var(--radius);
-  padding:12px 14px;margin-bottom:20px;font-size:12.5px;color:#e7a6a3;line-height:1.55;
-}
-.cors-warning i{margin-top:2px;color:#e0615c;flex:none;}
-.cors-warning code{background:rgba(0,0,0,.25);padding:1px 5px;border-radius:4px;color:#f2c9c6;}
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 0 18px;
+      border-bottom: 1px solid var(--border-soft);
+      margin-bottom: 34px;
+      flex-wrap: wrap;
+    }
 
-/* snapshot strip */
-.snapshot-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:36px;}
-.snapshot-card{
-  flex:1 1 260px;border:1px solid var(--border-soft);background:var(--surface);
-  border-radius:var(--radius-lg);padding:14px 16px;
-}
-.sc-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
-.sc-dot{width:7px;height:7px;border-radius:50%;flex:none;}
-.sc-dot.ok{background:#4ec97b;box-shadow:0 0 0 3px rgba(78,201,123,.14);}
-.sc-dot.idle{background:var(--text-faint);}
-.sc-dot.fail{background:#e0615c;box-shadow:0 0 0 3px rgba(224,97,92,.14);}
-.sc-title{font-family:var(--font-display);font-size:13px;font-weight:600;}
-.sc-time{margin-left:auto;font-family:var(--font-mono);font-size:10px;color:var(--text-faint);}
-.sc-body{display:flex;gap:18px;flex-wrap:wrap;}
-.sc-field{display:flex;flex-direction:column;gap:3px;}
-.sc-field .l{font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;}
-.sc-field .v{font-family:var(--font-mono);font-size:12.5px;color:var(--text);}
-.sc-field .v.muted{color:var(--text-dim);}
-.sc-field .v.ok-text{color:#6fd497;}
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dim);
+      font-size: 15px;
+    }
+    .brand-text .name {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: .01em;
+    }
+    .brand-text .role {
+      font-size: 11.5px;
+      color: var(--text-faint);
+      font-family: var(--font-mono);
+      letter-spacing: .02em;
+    }
 
-/* ============================================================
-   TOPOLOGY
-============================================================ */
-.topo-wrap{position:relative;padding-top:8px;}
-svg.connectors{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;}
-svg.connectors path{fill:none;stroke-width:1.6;stroke-linecap:round;}
-svg.connectors path.flow{
-  stroke-dasharray:5 6;
-  animation:flowmove 1.1s linear infinite;
-}
-@keyframes flowmove{to{stroke-dashoffset:-22;}}
+    .clock {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border: 1px solid var(--border-soft);
+      border-radius: 100px;
+      background: var(--surface);
+    }
+    .clock .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4ec97b;
+      box-shadow: 0 0 0 3px rgba(78,201,123,.15);
+    }
 
-.edge-label{
-  position:absolute;transform:translate(-50%,-50%);
-  font-family:var(--font-mono);font-size:10.5px;letter-spacing:.02em;
-  padding:4px 9px;border-radius:100px;white-space:nowrap;
-  background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-dim);
-  z-index:2;pointer-events:none;
-}
-.edge-label.fs{color:var(--amber);border-color:rgba(227,165,63,.28);}
-.edge-label.pg{color:var(--blue);border-color:rgba(91,152,214,.28);}
+    /* theme toggle */
+    .theme-toggle {
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
+      border-radius: 100px;
+      color: var(--text-dim);
+      font-size: 16px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.15s ease;
+      padding: 0;
+    }
+    .theme-toggle:hover {
+      color: var(--text);
+      border-color: var(--border);
+    }
 
-.tier{display:flex;justify-content:center;position:relative;z-index:2;}
-.tier-root{margin-bottom:64px;}
-.tier-branches{
-  display:flex;gap:60px;align-items:flex-start;justify-content:center;flex-wrap:wrap;
-}
-.branch{display:flex;flex-direction:column;align-items:center;width:100%;max-width:420px;}
-.leaf-row{
-  display:flex;gap:16px;margin-top:52px;flex-wrap:wrap;justify-content:center;width:100%;
-}
+    /* hero */
+    .hero {
+      margin-bottom: 38px;
+    }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: clamp(26px, 4vw, 38px);
+      letter-spacing: -.01em;
+      line-height: 1.15;
+      margin: 0 0 10px;
+    }
+    .hero p.lead-copy {
+      color: var(--text-dim);
+      font-size: 15px;
+      max-width: 640px;
+      line-height: 1.65;
+      margin: 0 0 22px;
+    }
+    .stat-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .stat-chip {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      min-width: 118px;
+    }
+    .stat-chip .v {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 600;
+    }
+    .stat-chip .l {
+      font-size: 10.5px;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-top: 2px;
+    }
 
-/* node card */
-.node{
-  border:1px solid var(--border);background:var(--surface);border-radius:var(--radius-lg);
-  cursor:pointer;transition:border-color .18s ease, transform .18s ease, background .18s ease;
-  text-align:left;
-}
-.node:hover{transform:translateY(-2px);border-color:var(--border);background:var(--surface-2);}
-.node:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+    /* legend */
+    .legend {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 26px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+    .legend-swatch {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex: none;
+    }
+    .legend-swatch.root {
+      background: var(--text);
+    }
+    .legend-swatch.fs {
+      background: var(--amber);
+    }
+    .legend-swatch.pg {
+      background: var(--blue);
+    }
 
-.node-root{
-  width:260px;padding:18px 20px;
-  border-color:rgba(234,234,239,.22);
-  background:linear-gradient(180deg, var(--surface-2), var(--surface));
-}
-.node-root:hover{border-color:rgba(234,234,239,.4);}
+    /* live status */
+    .live-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .live-bar-text {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      font-weight: 500;
+      padding: 7px 13px;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: .15s ease;
+    }
+    .refresh-btn:hover {
+      color: var(--text);
+      border-color: rgba(234,234,239,.4);
+      background: var(--surface-2);
+    }
+    [data-theme="light"] .refresh-btn:hover {
+      border-color: var(--border);
+      background: var(--surface-2);
+    }
+    .refresh-btn.spinning i {
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
-.node-branch{
-  width:100%;max-width:340px;padding:16px 18px;
-}
-.node-branch.fs{border-color:rgba(227,165,63,.28);}
-.node-branch.fs:hover{border-color:rgba(227,165,63,.5);background:var(--amber-soft);}
-.node-branch.pg{border-color:rgba(91,152,214,.28);}
-.node-branch.pg:hover{border-color:rgba(91,152,214,.5);background:var(--blue-soft);}
+    .cors-warning {
+      display: flex;
+      gap: 11px;
+      align-items: flex-start;
+      background: rgba(224,97,92,.08);
+      border: 1px solid rgba(224,97,92,.28);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 20px;
+      font-size: 12.5px;
+      color: #e7a6a3;
+      line-height: 1.55;
+    }
+    [data-theme="light"] .cors-warning {
+      background: rgba(224,97,92,.06);
+      color: #b14a47;
+    }
+    .cors-warning i {
+      margin-top: 2px;
+      color: #e0615c;
+      flex: none;
+    }
+    .cors-warning code {
+      background: rgba(0,0,0,.25);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: #f2c9c6;
+    }
+    [data-theme="light"] .cors-warning code {
+      background: rgba(0,0,0,.08);
+      color: #a53f3c;
+    }
 
-.node-leaf{width:132px;padding:12px 13px;}
+    /* snapshot row */
+    .snapshot-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+    .snapshot-card {
+      flex: 1 1 260px;
+      border: 1px solid var(--border-soft);
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+    }
+    .sc-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .sc-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex: none;
+    }
+    .sc-dot.ok {
+      background: #4ec97b;
+      box-shadow: 0 0 0 3px rgba(78,201,123,.14);
+    }
+    .sc-dot.idle {
+      background: var(--text-faint);
+    }
+    .sc-dot.fail {
+      background: #e0615c;
+      box-shadow: 0 0 0 3px rgba(224,97,92,.14);
+    }
+    .sc-title {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .sc-time {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-faint);
+    }
+    .sc-body {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .sc-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .sc-field .l {
+      font-size: 10px;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .sc-field .v {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--text);
+    }
+    .sc-field .v.muted {
+      color: var(--text-dim);
+    }
+    .sc-field .v.ok-text {
+      color: #6fd497;
+    }
 
-.node-head{display:flex;align-items:center;gap:9px;margin-bottom:2px;}
-.node-icon{
-  width:26px;height:26px;border-radius:7px;flex:none;
-  display:flex;align-items:center;justify-content:center;font-size:13px;
-  background:var(--bg-elevated);border:1px solid var(--border-soft);color:var(--text-dim);
-}
-.node-root .node-icon{color:var(--text);}
-.node-branch.fs .node-icon{color:var(--amber);}
-.node-branch.pg .node-icon{color:var(--blue);}
+    /* ============================================================
+       TOPOLOGY
+    ============================================================ */
+    .topo-wrap {
+      position: relative;
+      padding-top: 8px;
+    }
+    svg.connectors {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+    svg.connectors path {
+      fill: none;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+    }
+    svg.connectors path.flow {
+      stroke-dasharray: 5 6;
+      animation: flowmove 1.1s linear infinite;
+    }
+    @keyframes flowmove {
+      to { stroke-dashoffset: -22; }
+    }
 
-.node-title{font-family:var(--font-display);font-weight:600;font-size:14.5px;line-height:1.2;}
-.node-root .node-title{font-size:16px;}
-.node-sub{font-family:var(--font-mono);font-size:10.5px;color:var(--text-faint);margin-top:1px;}
+    .edge-label {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: .02em;
+      padding: 4px 9px;
+      border-radius: 100px;
+      white-space: nowrap;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      z-index: 2;
+      pointer-events: none;
+    }
+    .edge-label.fs {
+      color: var(--amber);
+      border-color: rgba(227,165,63,.28);
+    }
+    .edge-label.pg {
+      color: var(--blue);
+      border-color: rgba(91,152,214,.28);
+    }
 
-.node-meta{margin-top:11px;display:flex;gap:14px;flex-wrap:wrap;}
-.node-meta .m{font-size:10.5px;color:var(--text-dim);}
-.node-meta .m b{display:block;color:var(--text);font-family:var(--font-mono);font-size:11.5px;font-weight:500;}
+    .tier {
+      display: flex;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+    .tier-root {
+      margin-bottom: 64px;
+    }
+    .tier-branches {
+      display: flex;
+      gap: 60px;
+      align-items: flex-start;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .branch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 420px;
+    }
+    .leaf-row {
+      display: flex;
+      gap: 16px;
+      margin-top: 52px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
 
-.node-leaf .node-title{font-size:12.5px;}
-.node-leaf .node-icon{width:20px;height:20px;font-size:10px;}
-.node-leaf .node-sub{font-size:9px;}
+    /* node */
+    .node {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: border-color .18s ease, transform .18s ease, background .18s ease;
+      text-align: left;
+    }
+    .node:hover {
+      transform: translateY(-2px);
+      border-color: var(--border);
+      background: var(--surface-2);
+    }
+    .node:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 2px;
+    }
 
-.chev{margin-left:auto;color:var(--text-faint);font-size:11px;}
+    .node-root {
+      width: 260px;
+      padding: 18px 20px;
+      border-color: rgba(234,234,239,.22);
+      background: linear-gradient(180deg, var(--surface-2), var(--surface));
+    }
+    [data-theme="light"] .node-root {
+      border-color: rgba(0,0,0,.18);
+    }
+    .node-root:hover {
+      border-color: rgba(234,234,239,.4);
+    }
+    [data-theme="light"] .node-root:hover {
+      border-color: rgba(0,0,0,.3);
+    }
 
-/* ============================================================
-   OFFCANVAS DETAIL
-============================================================ */
-.offcanvas{
-  background:var(--bg-elevated);border-left:1px solid var(--border);
-  width:min(420px, 92vw);color:var(--text);
-}
-.offcanvas-header{border-bottom:1px solid var(--border-soft);padding:18px 22px;}
-.offcanvas-body{padding:22px;}
-.offcanvas-title{font-family:var(--font-display);font-size:17px;font-weight:600;}
-.detail-tag{
-  display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;
-  padding:4px 10px;border-radius:100px;border:1px solid var(--border);color:var(--text-dim);margin-bottom:14px;
-}
-.detail-section{margin-bottom:20px;}
-.detail-section h6{
-  font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;
-  color:var(--text-faint);margin-bottom:8px;font-weight:500;
-}
-.detail-section p{font-size:13.5px;color:var(--text-dim);line-height:1.6;margin:0;}
-.kv-list{display:flex;flex-direction:column;gap:9px;}
-.kv-row{display:flex;justify-content:space-between;gap:14px;font-size:12.5px;padding-bottom:8px;border-bottom:1px solid var(--border-soft);}
-.kv-row .k{color:var(--text-faint);}
-.kv-row .v{color:var(--text);font-family:var(--font-mono);text-align:right;}
-.code-block{
-  background:var(--bg);border:1px solid var(--border-soft);border-radius:8px;padding:13px 14px;
-  font-family:var(--font-mono);font-size:11.5px;line-height:1.7;color:#c6d6ea;overflow-x:auto;white-space:pre;
-}
-.code-block .k2{color:#e3a53f;}
-.code-block .s2{color:#8fbf7f;}
-.code-block .n2{color:#5b98d6;}
-.btn-close{filter:invert(1) grayscale(1) brightness(1.6);}
+    .node-branch {
+      width: 100%;
+      max-width: 340px;
+      padding: 16px 18px;
+    }
+    .node-branch.fs {
+      border-color: rgba(227,165,63,.28);
+    }
+    .node-branch.fs:hover {
+      border-color: rgba(227,165,63,.5);
+      background: var(--amber-soft);
+    }
+    .node-branch.pg {
+      border-color: rgba(91,152,214,.28);
+    }
+    .node-branch.pg:hover {
+      border-color: rgba(91,152,214,.5);
+      background: var(--blue-soft);
+    }
 
-/* ============================================================
-   ACCORDION / NOTES SECTION
-============================================================ */
-.notes-heading{
-  font-family:var(--font-display);font-weight:600;font-size:20px;margin:78px 0 4px;
-}
-.notes-sub{color:var(--text-faint);font-size:13px;margin-bottom:22px;}
-.accordion-item{background:var(--surface);border:1px solid var(--border-soft);margin-bottom:8px;border-radius:var(--radius) !important;overflow:hidden;}
-.accordion-button{
-  background:var(--surface);color:var(--text);font-family:var(--font-body);font-weight:500;font-size:13.5px;
-  padding:15px 18px;box-shadow:none !important;
-}
-.accordion-button:not(.collapsed){background:var(--surface-2);color:var(--text);}
-.accordion-button::after{filter:invert(1) opacity(.55);}
-.accordion-button:focus{box-shadow:none;}
-.accordion-body{
-  background:var(--bg-elevated);color:var(--text-dim);font-size:13px;line-height:1.7;padding:16px 18px 20px;
-}
-.accordion-body ul{margin:8px 0 0;padding-left:18px;}
-.accordion-body code{background:var(--surface-2);color:#c6d6ea;padding:1px 5px;border-radius:4px;font-size:12px;}
+    .node-leaf {
+      width: 132px;
+      padding: 12px 13px;
+    }
 
-/* footer */
-.foot{
-  margin-top:60px;padding-top:20px;border-top:1px solid var(--border-soft);
-  display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
-  font-size:11.5px;color:var(--text-faint);font-family:var(--font-mono);
-}
+    .node-head {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 2px;
+    }
+    .node-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      flex: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-soft);
+      color: var(--text-dim);
+    }
+    .node-root .node-icon {
+      color: var(--text);
+    }
+    .node-branch.fs .node-icon {
+      color: var(--amber);
+    }
+    .node-branch.pg .node-icon {
+      color: var(--blue);
+    }
 
-/* ============================================================
-   RESPONSIVE
-============================================================ */
-@media (max-width:880px){
-  .tier-branches{flex-direction:column;align-items:center;gap:78px;}
-  .branch{max-width:100%;}
-}
-@media (max-width:480px){
-  .node-root{width:220px;}
-  .leaf-row{gap:10px;}
-  .node-leaf{width:100px;padding:10px 10px;}
-  .stat-chip{min-width:100px;}
-  .edge-label{font-size:9.5px;padding:3px 7px;}
-}
-@media (prefers-reduced-motion: reduce){
-  svg.connectors path.flow{animation:none;}
-  .node{transition:none;}
-}
-</style>
+    .node-title {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 14.5px;
+      line-height: 1.2;
+    }
+    .node-root .node-title {
+      font-size: 16px;
+    }
+    .node-sub {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-faint);
+      margin-top: 1px;
+    }
+    .node-meta {
+      margin-top: 11px;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .node-meta .m {
+      font-size: 10.5px;
+      color: var(--text-dim);
+    }
+    .node-meta .m b {
+      display: block;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 500;
+    }
+
+    .node-leaf .node-title {
+      font-size: 12.5px;
+    }
+    .node-leaf .node-icon {
+      width: 20px;
+      height: 20px;
+      font-size: 10px;
+    }
+    .node-leaf .node-sub {
+      font-size: 9px;
+    }
+    .chev {
+      margin-left: auto;
+      color: var(--text-faint);
+      font-size: 11px;
+    }
+
+    /* ============================================================
+       OFFCANVAS
+    ============================================================ */
+    .offcanvas {
+      background: var(--bg-elevated);
+      border-left: 1px solid var(--border);
+      width: min(420px, 92vw);
+      color: var(--text);
+    }
+    .offcanvas-header {
+      border-bottom: 1px solid var(--border-soft);
+      padding: 18px 22px;
+    }
+    .offcanvas-body {
+      padding: 22px;
+    }
+    .offcanvas-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 600;
+    }
+    .detail-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      margin-bottom: 14px;
+    }
+    .detail-section {
+      margin-bottom: 20px;
+    }
+    .detail-section h6 {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-faint);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .detail-section p {
+      font-size: 13.5px;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin: 0;
+    }
+    .kv-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .kv-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 12.5px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .kv-row .k {
+      color: var(--text-faint);
+    }
+    .kv-row .v {
+      color: var(--text);
+      font-family: var(--font-mono);
+      text-align: right;
+    }
+    .code-block {
+      background: var(--bg);
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      padding: 13px 14px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      line-height: 1.7;
+      color: #c6d6ea;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    [data-theme="light"] .code-block {
+      color: #1f2a3a;
+      background: var(--surface-2);
+    }
+    .code-block .k2 { color: #e3a53f; }
+    .code-block .s2 { color: #2d7a2d; }
+    .code-block .n2 { color: #1a6bb0; }
+    [data-theme="light"] .code-block .k2 { color: #b0842a; }
+    [data-theme="light"] .code-block .s2 { color: #1f6b1f; }
+    [data-theme="light"] .code-block .n2 { color: #1a5a9a; }
+
+    .btn-close {
+      filter: invert(1) grayscale(1) brightness(1.6);
+    }
+    [data-theme="light"] .btn-close {
+      filter: invert(0) grayscale(0) brightness(0.6);
+    }
+
+    /* ============================================================
+       ACCORDION
+    ============================================================ */
+    .notes-heading {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 20px;
+      margin: 78px 0 4px;
+    }
+    .notes-sub {
+      color: var(--text-faint);
+      font-size: 13px;
+      margin-bottom: 22px;
+    }
+    .accordion-item {
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
+      margin-bottom: 8px;
+      border-radius: var(--radius) !important;
+      overflow: hidden;
+    }
+    .accordion-button {
+      background: var(--surface);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-weight: 500;
+      font-size: 13.5px;
+      padding: 15px 18px;
+      box-shadow: none !important;
+    }
+    .accordion-button:not(.collapsed) {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+    .accordion-button::after {
+      filter: invert(1) opacity(.55);
+    }
+    [data-theme="light"] .accordion-button::after {
+      filter: invert(0) opacity(.45);
+    }
+    .accordion-button:focus {
+      box-shadow: none;
+    }
+    .accordion-body {
+      background: var(--bg-elevated);
+      color: var(--text-dim);
+      font-size: 13px;
+      line-height: 1.7;
+      padding: 16px 18px 20px;
+    }
+    .accordion-body ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+    .accordion-body code {
+      background: var(--surface-2);
+      color: #c6d6ea;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    [data-theme="light"] .accordion-body code {
+      color: #1f2a3a;
+      background: var(--surface);
+    }
+
+    .foot {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-soft);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 11.5px;
+      color: var(--text-faint);
+      font-family: var(--font-mono);
+    }
+    .foot code {
+      background: var(--surface-2);
+      color: var(--text-dim);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    /* ============================================================
+       RESPONSIVE — text & overflow fixes
+    ============================================================ */
+    @media (max-width: 880px) {
+      .tier-branches {
+        flex-direction: column;
+        align-items: center;
+        gap: 78px;
+      }
+      .branch {
+        max-width: 100%;
+      }
+      .node-root {
+        width: 100%;
+        max-width: 340px;
+      }
+      .node-branch {
+        max-width: 100%;
+      }
+      .node-leaf {
+        width: 100px;
+        padding: 10px 10px;
+      }
+      .node-leaf .node-title {
+        font-size: 11px;
+      }
+      .leaf-row {
+        gap: 10px;
+      }
+      .stat-chip {
+        min-width: 100px;
+      }
+      .edge-label {
+        font-size: 9.5px;
+        padding: 3px 7px;
+        white-space: nowrap;
+      }
+      .hero h1 {
+        font-size: clamp(22px, 5vw, 32px);
+      }
+      .hero p.lead-copy {
+        font-size: 14px;
+      }
+      .snapshot-card {
+        flex: 1 1 100%;
+      }
+      .sc-body {
+        gap: 12px;
+      }
+      .topbar {
+        gap: 10px;
+        padding: 16px 0 14px;
+      }
+      .brand-text .name {
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .node-root {
+        padding: 14px 16px;
+      }
+      .node-branch {
+        padding: 14px 14px;
+      }
+      .node-leaf {
+        width: 90px;
+        padding: 8px 8px;
+      }
+      .node-leaf .node-title {
+        font-size: 10px;
+      }
+      .node-leaf .node-sub {
+        font-size: 8px;
+      }
+      .stat-chip {
+        min-width: 80px;
+        padding: 8px 10px;
+      }
+      .stat-chip .v {
+        font-size: 16px;
+      }
+      .hero h1 {
+        font-size: clamp(20px, 6vw, 26px);
+      }
+      .snapshot-card {
+        padding: 12px 12px;
+      }
+      .sc-field .v {
+        font-size: 11px;
+      }
+      .edge-label {
+        font-size: 8px;
+        padding: 2px 6px;
+      }
+      .clock {
+        font-size: 10px;
+        padding: 5px 8px;
+      }
+      .brand-mark {
+        width: 26px;
+        height: 26px;
+        font-size: 13px;
+      }
+      .offcanvas {
+        width: 96vw;
+      }
+      .kv-row {
+        font-size: 11px;
+        gap: 8px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      svg.connectors path.flow { animation: none; }
+      .node { transition: none; }
+    }
+  </style>
 </head>
 <body>
 
@@ -339,9 +973,14 @@ svg.connectors path.flow{
         <div class="role">backup topology</div>
       </div>
     </div>
-    <div class="clock">
-      <span class="dot"></span>
-      <span id="pht-clock">--:--:-- PHT</span>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <div class="clock">
+        <span class="dot"></span>
+        <span id="pht-clock">--:--:-- PHT</span>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <i class="bi bi-moon-fill" id="themeIcon"></i>
+      </button>
     </div>
   </div>
 
@@ -567,7 +1206,7 @@ svg.connectors path.flow{
   </div>
 
   <div class="foot">
-    <span>Status figures are a manual snapshot from each service's <code style="background:var(--surface-2);color:#c6d6ea;padding:1px 5px;border-radius:4px;">/admin</code> and health endpoints — not a live poll.</span>
+    <span>Status figures are a manual snapshot from each service's <code>/admin</code> and health endpoints — not a live poll.</span>
     <span>Asia/Manila (PHT)</span>
   </div>
 
@@ -585,435 +1224,445 @@ svg.connectors path.flow{
 <script src="config.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 <script>
-/* ============================================================
-   ENDPOINTS — populated at deploy time via config.js (see below),
-   falling back to these known values if config.js is missing.
-============================================================ */
-const ENDPOINTS = {
-  firestoreStatus: (window.APP_CONFIG && window.APP_CONFIG.FIRESTORE_STATUS_URL)
-    || 'https://debtposinterprise-database-backup.onrender.com/status',
-  postgresAdmin: (window.APP_CONFIG && window.APP_CONFIG.POSTGRES_ADMIN_URL)
-    || 'https://marniestore-debtpos-postgre-aiven-backup.onrender.com/admin'
-};
+  /* ============================================================
+     ENDPOINTS — populated via config.js (fallback)
+  ============================================================ */
+  const ENDPOINTS = {
+    firestoreStatus: (window.APP_CONFIG && window.APP_CONFIG.FIRESTORE_STATUS_URL)
+      || 'https://debtposinterprise-database-backup.onrender.com/status',
+    postgresAdmin: (window.APP_CONFIG && window.APP_CONFIG.POSTGRES_ADMIN_URL)
+      || 'https://marniestore-debtpos-postgre-aiven-backup.onrender.com/admin'
+  };
 
-const STATE = { firestore: null, postgres: null, firestoreError: null, postgresError: null, lastFetch: null };
+  const STATE = { firestore: null, postgres: null, firestoreError: null, postgresError: null, lastFetch: null };
 
-/* ---- Reference snapshot ----
-   The Firestore mirror's /status endpoint only reports isRunning / nextBackup —
-   it doesn't surface per-slot history the way the Postgres /admin endpoint does.
-   The real detail lives in Firestore itself, in __backup_metadata__/slot_<ISO time>.
-   Pasted manually from the Firestore console (not fetched live — this service has
-   no public read endpoint for it). Used only as a fallback when the live /status
-   payload has nothing for a given collection.
-*/
-const KNOWN_FS_SLOT = {
-  docId: 'slot_2026-07-01T21-00-00-000Z',
-  slotTimePHT: '7/2/2026, 5:00:00 AM',
-  status: 'success',
-  totalAttempts: 1,
-  deadlinePHT: '7/2/2026, 11:00:00 AM',
-  attempt: {
-    attemptNumber: 1,
+  /* ---- Fallback slot for Firestore (from console) ---- */
+  const KNOWN_FS_SLOT = {
+    docId: 'slot_2026-07-01T21-00-00-000Z',
+    slotTimePHT: '7/2/2026, 5:00:00 AM',
     status: 'success',
-    triggeredBy: 'http_health_check',
-    startedAtPHT: '7/2/2026, 5:39:47 AM',
-    finishedAtPHT: '7/2/2026, 5:39:57 AM',
-    elapsedSeconds: '10.39',
-    totalReads: 1946,
-    totalWrites: 24,
-    totalDeletes: 1191,
-    collections: {
-      customers: { reads: 124, writes: 24, deletes: 66, status: 'ok' },
-      products:  { reads: 513, writes: 0,  deletes: 0,  status: 'no_changes' },
-      purchases: { reads: 1309, writes: 0, deletes: 1125, status: 'ok' }
+    totalAttempts: 1,
+    deadlinePHT: '7/2/2026, 11:00:00 AM',
+    attempt: {
+      attemptNumber: 1,
+      status: 'success',
+      triggeredBy: 'http_health_check',
+      startedAtPHT: '7/2/2026, 5:39:47 AM',
+      finishedAtPHT: '7/2/2026, 5:39:57 AM',
+      elapsedSeconds: '10.39',
+      totalReads: 1946,
+      totalWrites: 24,
+      totalDeletes: 1191,
+      collections: {
+        customers: { reads: 124, writes: 24, deletes: 66, status: 'ok' },
+        products:  { reads: 513, writes: 0,  deletes: 0,  status: 'no_changes' },
+        purchases: { reads: 1309, writes: 0, deletes: 1125, status: 'ok' }
+      }
     }
-  }
-};
+  };
 
-/* ---- generic helpers ---- */
-function safe(fn, fallback){ try{ const v = fn(); return (v === undefined || v === null) ? fallback : v; } catch(e){ return fallback; } }
-function esc(s){ return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  /* ---- helpers ---- */
+  function safe(fn, fallback){ try{ const v = fn(); return (v === undefined || v === null) ? fallback : v; } catch(e){ return fallback; } }
+  function esc(s){ return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
 
-// Pretty-print any JSON value with light syntax coloring, for the "raw payload" view.
-function prettyJSON(value){
-  const json = JSON.stringify(value, null, 2);
-  return esc(json)
-    .replace(/"(.*?)":/g, '<span class="k2">"$1"</span>:')
-    .replace(/: "(.*?)"/g, ': <span class="s2">"$1"</span>')
-    .replace(/: (true|false|null|-?\d+(\.\d+)?)/g, ': <span class="n2">$1</span>');
-}
-
-function fmtDot(status){
-  if(status === 'ok') return 'ok';
-  if(status === 'fail') return 'fail';
-  return 'idle';
-}
-
-/* ============================================================
-   FETCH
-============================================================ */
-async function fetchJSON(url){
-  const res = await fetch(url, { cache: 'no-store' });
-  if(!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
-
-async function refreshAll(){
-  const btn = document.getElementById('refreshBtn');
-  const statusText = document.getElementById('liveStatusText');
-  btn.classList.add('spinning');
-  statusText.textContent = 'Checking backup services…';
-
-  const [fsResult, pgResult] = await Promise.allSettled([
-    fetchJSON(ENDPOINTS.firestoreStatus),
-    fetchJSON(ENDPOINTS.postgresAdmin)
-  ]);
-
-  STATE.firestore = fsResult.status === 'fulfilled' ? fsResult.value : null;
-  STATE.firestoreError = fsResult.status === 'rejected' ? fsResult.reason.message : null;
-  STATE.postgres = pgResult.status === 'fulfilled' ? pgResult.value : null;
-  STATE.postgresError = pgResult.status === 'rejected' ? pgResult.reason.message : null;
-  STATE.lastFetch = new Date();
-
-  renderLiveState();
-  btn.classList.remove('spinning');
-}
-
-/* ============================================================
-   RENDER — status cards, node meta, leaf tiles, edge labels
-============================================================ */
-function renderLiveState(){
-  const fs = STATE.firestore, pg = STATE.postgres;
-  const corsBanner = document.getElementById('corsWarning');
-  corsBanner.hidden = !(STATE.firestoreError || STATE.postgresError);
-
-  const stamp = STATE.lastFetch ? STATE.lastFetch.toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit', second:'2-digit' }) : '—';
-  document.getElementById('liveStatusText').textContent = (STATE.firestoreError || STATE.postgresError)
-    ? `Last attempt ${stamp} — one or more services unreachable`
-    : `Both services reachable — last checked ${stamp}`;
-
-  /* ---- Firestore mirror ---- */
-  if(fs){
-    const running = safe(()=>fs.isRunning, false);
-    const lastRun = safe(()=>fs.lastRun, null);
-    const nextBackup = safe(()=>fs.nextBackup, '—');
-    const fallbackSlot = KNOWN_FS_SLOT.attempt; // used only when the live payload has nothing
-    const hasKnownRun = !lastRun && KNOWN_FS_SLOT;
-
-    document.getElementById('dotFs').className = 'sc-dot ' + (running ? 'ok' : (lastRun || hasKnownRun ? 'ok' : 'idle'));
-    document.getElementById('timeFs').textContent = 'polled ' + safe(()=>fs.currentTimePHT, '—');
-    document.getElementById('fsLastRun').textContent = lastRun || (hasKnownRun ? `${fallbackSlot.status} · ${fallbackSlot.finishedAtPHT}` : 'none recorded');
-    document.getElementById('fsNextRun').textContent = nextBackup;
-    document.getElementById('fsRunning').textContent = running ? 'yes' : 'no';
-    document.getElementById('metaFsNext').textContent = nextBackup;
-    document.getElementById('metaFsLast').textContent = lastRun || (hasKnownRun ? fallbackSlot.status : 'none yet');
-
-    const results = safe(()=>fs.lastResults, null);
-    ['customers','purchases','products'].forEach(name=>{
-      const el = document.getElementById('leaf-fs-'+name);
-      if(!el) return;
-      const perCollection = safe(()=> results && (results.collections ? results.collections[name] : results[name]), null);
-      if(perCollection && typeof perCollection === 'object'){
-        const count = safe(()=>perCollection.writes ?? perCollection.lastDocCount ?? perCollection.count, null);
-        el.textContent = count !== null ? `${count} synced` : 'synced';
-      } else if(hasKnownRun && fallbackSlot.collections[name]){
-        const c = fallbackSlot.collections[name];
-        el.textContent = c.status === 'no_changes' ? 'no changes' : `${c.writes}w / ${c.deletes}d`;
-      } else {
-        el.textContent = results ? 'see raw payload' : 'awaiting first run';
-      }
-    });
-  } else {
-    document.getElementById('dotFs').className = 'sc-dot fail';
-    document.getElementById('timeFs').textContent = 'unreachable';
-    document.getElementById('fsLastRun').textContent = 'unknown';
-    document.getElementById('fsNextRun').textContent = 'unknown';
-    document.getElementById('fsRunning').textContent = 'unknown';
-    document.getElementById('metaFsNext').textContent = 'unreachable';
-    document.getElementById('metaFsLast').textContent = 'unreachable';
-    ['customers','purchases','products'].forEach(name=>{
-      const el = document.getElementById('leaf-fs-'+name);
-      if(el) el.textContent = 'unreachable';
-    });
+  function prettyJSON(value){
+    const json = JSON.stringify(value, null, 2);
+    return esc(json)
+      .replace(/"(.*?)":/g, '<span class="k2">"$1"</span>:')
+      .replace(/: "(.*?)"/g, ': <span class="s2">"$1"</span>')
+      .replace(/: (true|false|null|-?\d+(\.\d+)?)/g, ': <span class="n2">$1</span>');
   }
 
-  /* ---- Postgres / Aiven ---- */
-  if(pg){
-    const slot = safe(()=>pg.currentSlot, {});
-    const status = safe(()=>slot.status, 'unknown');
-    const nextBackup = safe(()=>pg.schedule.nextBackupAtPHT, '—');
-    const lastAttempt = safe(()=>slot.lastAttemptAtPHT, null);
-    document.getElementById('dotPg').className = 'sc-dot ' + (status === 'success' ? 'ok' : status === 'failed' ? 'fail' : 'idle');
-    document.getElementById('timePg').textContent = 'polled ' + safe(()=>pg.currentTimePHT, '—');
-    document.getElementById('pgLastRun').textContent = lastAttempt ? `${status} · ${lastAttempt}` : 'none recorded';
-    document.getElementById('pgLastRun').className = 'v ' + (status === 'success' ? 'ok-text' : '');
-    document.getElementById('pgNextRun').textContent = nextBackup;
-    document.getElementById('metaPgLast').textContent = lastAttempt ? status : 'none yet';
-    document.getElementById('metaPgNext').textContent = nextBackup;
-
-    const attempts = safe(()=>slot.attempts, []);
-    const latestAttempt = attempts[attempts.length - 1];
-    document.getElementById('pgRows').textContent = latestAttempt ? `${(latestAttempt.totalWrites||0).toLocaleString()} writes` : '—';
-
-    const collections = safe(()=>pg.collections, []);
-    ['customers','purchases','products'].forEach(name=>{
-      const el = document.getElementById('leaf-pg-'+name);
-      if(!el) return;
-      const c = collections.find(c=>c.collection === name);
-      if(c){
-        const count = safe(()=>c.lastDocCount, null);
-        el.textContent = count !== null ? `${count.toLocaleString()} rows` : 'synced';
-      } else {
-        el.textContent = 'no data';
-      }
-    });
-  } else {
-    document.getElementById('dotPg').className = 'sc-dot fail';
-    document.getElementById('timePg').textContent = 'unreachable';
-    document.getElementById('pgLastRun').textContent = 'unknown';
-    document.getElementById('pgNextRun').textContent = 'unknown';
-    document.getElementById('pgRows').textContent = 'unknown';
-    document.getElementById('metaPgLast').textContent = 'unreachable';
-    document.getElementById('metaPgNext').textContent = 'unreachable';
-    ['customers','purchases','products'].forEach(name=>{
-      const el = document.getElementById('leaf-pg-'+name);
-      if(el) el.textContent = 'unreachable';
-    });
+  function fmtDot(status){
+    if(status === 'ok') return 'ok';
+    if(status === 'fail') return 'fail';
+    return 'idle';
   }
 
-  drawTopology();
-}
-
-/* ============================================================
-   OFFCANVAS DETAIL — built from live STATE at click time
-============================================================ */
-const offEl = document.getElementById('detailPanel');
-const offcanvas = new bootstrap.Offcanvas(offEl);
-
-function buildDetail(key){
-  const fs = STATE.firestore, pg = STATE.postgres;
-
-  if(key === 'primary'){
-    return {
-      tag: 'Source of truth · Firestore', icon: 'bi-database',
-      description: 'The live database behind the POS interface. Every sale, customer record, and product update is written here first through the app\'s realtime hooks — nothing downstream is authoritative over this.',
-      kv: [['Project ID','hallow-2c7e6'], ['Collections','customers, purchases, products'], ['Access pattern','onSnapshot listeners'], ['Written by','DebtPOS Enterprise (React / Vite)']]
-    };
+  /* ============================================================
+     FETCH
+  ============================================================ */
+  async function fetchJSON(url){
+    const res = await fetch(url, { cache: 'no-store' });
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
   }
 
-  if(key === 'firestoreMirror'){
-    if(!fs) return { tag:'Backup 1 · unreachable', icon:'bi-cloud-slash', description:`Couldn't reach ${ENDPOINTS.firestoreStatus}. ${STATE.firestoreError||''}`, kv:[['Endpoint', ENDPOINTS.firestoreStatus]] };
-    const lastRun = safe(()=>fs.lastRun, null);
-    const a = KNOWN_FS_SLOT.attempt;
-    const usingFallback = !lastRun;
-    return {
-      tag: 'Backup 1 · Firestore → Firestore', icon: 'bi-cloud-arrow-down',
-      description: usingFallback
-        ? `The /status endpoint doesn't report per-slot history, so this is the most recent completed slot recorded in Firestore itself (${KNOWN_FS_SLOT.docId}). It ran twice — 5:00 AM and, on the schedule, 5:00 PM PHT — with the 5:00 AM slot triggered by an incoming health check.`
-        : 'A second Firestore project that receives a full copy of every tracked collection on a schedule, using Admin SDK credentials on both ends.',
-      kv: [
-        ['Service', safe(()=>fs.service,'—')],
-        ['Polled at', safe(()=>fs.currentTimePHT,'—')],
-        ['Next backup', safe(()=>fs.nextBackup,'—')],
-        ['Currently running', safe(()=>fs.isRunning,false) ? 'yes' : 'no'],
-        ['Last completed slot', `${KNOWN_FS_SLOT.slotTimePHT} — ${a.status}`],
-        ['Triggered by', a.triggeredBy],
-        ['Duration', a.elapsedSeconds + 's'],
-        ['Reads / writes / deletes', `${a.totalReads.toLocaleString()} / ${a.totalWrites.toLocaleString()} / ${a.totalDeletes.toLocaleString()}`]
-      ],
-      raw: usingFallback ? { source:'Firestore console — __backup_metadata__/' + KNOWN_FS_SLOT.docId, slot: KNOWN_FS_SLOT } : fs
-    };
+  async function refreshAll(){
+    const btn = document.getElementById('refreshBtn');
+    const statusText = document.getElementById('liveStatusText');
+    btn.classList.add('spinning');
+    statusText.textContent = 'Checking backup services…';
+
+    const [fsResult, pgResult] = await Promise.allSettled([
+      fetchJSON(ENDPOINTS.firestoreStatus),
+      fetchJSON(ENDPOINTS.postgresAdmin)
+    ]);
+
+    STATE.firestore = fsResult.status === 'fulfilled' ? fsResult.value : null;
+    STATE.firestoreError = fsResult.status === 'rejected' ? fsResult.reason.message : null;
+    STATE.postgres = pgResult.status === 'fulfilled' ? pgResult.value : null;
+    STATE.postgresError = pgResult.status === 'rejected' ? pgResult.reason.message : null;
+    STATE.lastFetch = new Date();
+
+    renderLiveState();
+    btn.classList.remove('spinning');
   }
 
-  if(key === 'postgres'){
-    if(!pg) return { tag:'Backup 2 · unreachable', icon:'bi-cloud-slash', description:`Couldn't reach ${ENDPOINTS.postgresAdmin}. ${STATE.postgresError||''}`, kv:[['Endpoint', ENDPOINTS.postgresAdmin]] };
-    const slot = safe(()=>pg.currentSlot,{});
-    const attempts = safe(()=>slot.attempts,[]);
-    const latest = attempts[attempts.length-1];
-    return {
-      tag: 'Backup 2 · Firestore → PostgreSQL', icon: 'bi-server',
-      description: 'A daily export into a PostgreSQL instance on Aiven. This path holds no admin credentials — it reads Firestore the same way a browser would, governed entirely by security rules.',
-      kv: [
-        ['Backup time', safe(()=>pg.schedule.backupTimePHT,'—') + ' PHT'],
-        ['Grace hours', safe(()=>pg.schedule.graceHours,'—')],
-        ['Max attempts / hour', safe(()=>pg.schedule.maxAttemptsPerHour,'—')],
-        ['Slot status', safe(()=>slot.status,'—')],
-        ['Total attempts', safe(()=>slot.totalAttempts,'—')],
-        ['Next backup', safe(()=>pg.schedule.nextBackupAtPHT,'—')],
-        ['Latest run', latest ? `${latest.status} in ${latest.elapsedSeconds}s (${latest.triggeredBy})` : '—']
-      ],
-      raw: pg
-    };
+  /* ============================================================
+     RENDER
+  ============================================================ */
+  function renderLiveState(){
+    const fs = STATE.firestore, pg = STATE.postgres;
+    const corsBanner = document.getElementById('corsWarning');
+    corsBanner.hidden = !(STATE.firestoreError || STATE.postgresError);
+
+    const stamp = STATE.lastFetch ? STATE.lastFetch.toLocaleTimeString('en-PH', { hour:'2-digit', minute:'2-digit', second:'2-digit' }) : '—';
+    document.getElementById('liveStatusText').textContent = (STATE.firestoreError || STATE.postgresError)
+      ? `Last attempt ${stamp} — one or more services unreachable`
+      : `Both services reachable — last checked ${stamp}`;
+
+    /* Firestore mirror */
+    if(fs){
+      const running = safe(()=>fs.isRunning, false);
+      const lastRun = safe(()=>fs.lastRun, null);
+      const nextBackup = safe(()=>fs.nextBackup, '—');
+      const hasKnownRun = !lastRun && KNOWN_FS_SLOT;
+
+      document.getElementById('dotFs').className = 'sc-dot ' + (running ? 'ok' : (lastRun || hasKnownRun ? 'ok' : 'idle'));
+      document.getElementById('timeFs').textContent = 'polled ' + safe(()=>fs.currentTimePHT, '—');
+      document.getElementById('fsLastRun').textContent = lastRun || (hasKnownRun ? `${KNOWN_FS_SLOT.attempt.status} · ${KNOWN_FS_SLOT.attempt.finishedAtPHT}` : 'none recorded');
+      document.getElementById('fsNextRun').textContent = nextBackup;
+      document.getElementById('fsRunning').textContent = running ? 'yes' : 'no';
+      document.getElementById('metaFsNext').textContent = nextBackup;
+      document.getElementById('metaFsLast').textContent = lastRun || (hasKnownRun ? KNOWN_FS_SLOT.attempt.status : 'none yet');
+
+      const results = safe(()=>fs.lastResults, null);
+      ['customers','purchases','products'].forEach(name=>{
+        const el = document.getElementById('leaf-fs-'+name);
+        if(!el) return;
+        const perCollection = safe(()=> results && (results.collections ? results.collections[name] : results[name]), null);
+        if(perCollection && typeof perCollection === 'object'){
+          const count = safe(()=>perCollection.writes ?? perCollection.lastDocCount ?? perCollection.count, null);
+          el.textContent = count !== null ? `${count} synced` : 'synced';
+        } else if(hasKnownRun && KNOWN_FS_SLOT.attempt.collections[name]){
+          const c = KNOWN_FS_SLOT.attempt.collections[name];
+          el.textContent = c.status === 'no_changes' ? 'no changes' : `${c.writes}w / ${c.deletes}d`;
+        } else {
+          el.textContent = results ? 'see raw payload' : 'awaiting first run';
+        }
+      });
+    } else {
+      document.getElementById('dotFs').className = 'sc-dot fail';
+      document.getElementById('timeFs').textContent = 'unreachable';
+      document.getElementById('fsLastRun').textContent = 'unknown';
+      document.getElementById('fsNextRun').textContent = 'unknown';
+      document.getElementById('fsRunning').textContent = 'unknown';
+      document.getElementById('metaFsNext').textContent = 'unreachable';
+      document.getElementById('metaFsLast').textContent = 'unreachable';
+      ['customers','purchases','products'].forEach(name=>{
+        const el = document.getElementById('leaf-fs-'+name);
+        if(el) el.textContent = 'unreachable';
+      });
+    }
+
+    /* Postgres */
+    if(pg){
+      const slot = safe(()=>pg.currentSlot, {});
+      const status = safe(()=>slot.status, 'unknown');
+      const nextBackup = safe(()=>pg.schedule.nextBackupAtPHT, '—');
+      const lastAttempt = safe(()=>slot.lastAttemptAtPHT, null);
+      document.getElementById('dotPg').className = 'sc-dot ' + (status === 'success' ? 'ok' : status === 'failed' ? 'fail' : 'idle');
+      document.getElementById('timePg').textContent = 'polled ' + safe(()=>pg.currentTimePHT, '—');
+      document.getElementById('pgLastRun').textContent = lastAttempt ? `${status} · ${lastAttempt}` : 'none recorded';
+      document.getElementById('pgLastRun').className = 'v ' + (status === 'success' ? 'ok-text' : '');
+      document.getElementById('pgNextRun').textContent = nextBackup;
+      document.getElementById('metaPgLast').textContent = lastAttempt ? status : 'none yet';
+      document.getElementById('metaPgNext').textContent = nextBackup;
+
+      const attempts = safe(()=>slot.attempts, []);
+      const latestAttempt = attempts[attempts.length - 1];
+      document.getElementById('pgRows').textContent = latestAttempt ? `${(latestAttempt.totalWrites||0).toLocaleString()} writes` : '—';
+
+      const collections = safe(()=>pg.collections, []);
+      ['customers','purchases','products'].forEach(name=>{
+        const el = document.getElementById('leaf-pg-'+name);
+        if(!el) return;
+        const c = collections.find(c=>c.collection === name);
+        if(c){
+          const count = safe(()=>c.lastDocCount, null);
+          el.textContent = count !== null ? `${count.toLocaleString()} rows` : 'synced';
+        } else {
+          el.textContent = 'no data';
+        }
+      });
+    } else {
+      document.getElementById('dotPg').className = 'sc-dot fail';
+      document.getElementById('timePg').textContent = 'unreachable';
+      document.getElementById('pgLastRun').textContent = 'unknown';
+      document.getElementById('pgNextRun').textContent = 'unknown';
+      document.getElementById('pgRows').textContent = 'unknown';
+      document.getElementById('metaPgLast').textContent = 'unreachable';
+      document.getElementById('metaPgNext').textContent = 'unreachable';
+      ['customers','purchases','products'].forEach(name=>{
+        const el = document.getElementById('leaf-pg-'+name);
+        if(el) el.textContent = 'unreachable';
+      });
+    }
+
+    drawTopology();
   }
 
-  // leaf nodes
-  if(key.startsWith('fs-')){
-    const name = key.slice(3);
-    if(!fs) return { tag:'Firestore mirror · unreachable', icon:'bi-cloud-slash', description:'Endpoint unreachable.', kv:[] };
-    const results = safe(()=> fs.lastResults, null);
-    const known = KNOWN_FS_SLOT.attempt.collections[name];
-    if(!results && known){
+  /* ============================================================
+     OFFCANVAS
+  ============================================================ */
+  const offEl = document.getElementById('detailPanel');
+  const offcanvas = new bootstrap.Offcanvas(offEl);
+
+  function buildDetail(key){
+    const fs = STATE.firestore, pg = STATE.postgres;
+
+    if(key === 'primary'){
       return {
-        tag: 'Firestore mirror · collection', icon: 'bi-collection',
-        description: known.status === 'no_changes'
-          ? `No changes were found for ${name} in the last completed slot — the collection was read to confirm it, then nothing was written.`
-          : `The last completed slot updated ${name}: ${known.writes} document${known.writes===1?'':'s'} written, ${known.deletes} removed to match what's no longer in the primary.`,
-        kv: [
-          ['Collection', name],
-          ['Destination project','nova-e6655'],
-          ['Slot', KNOWN_FS_SLOT.slotTimePHT],
-          ['Status', known.status],
-          ['Reads / writes / deletes', `${known.reads} / ${known.writes} / ${known.deletes}`]
-        ],
-        raw: { source:'Firestore console — __backup_metadata__/' + KNOWN_FS_SLOT.docId, ...known }
+        tag: 'Source of truth · Firestore', icon: 'bi-database',
+        description: 'The live database behind the POS interface. Every sale, customer record, and product update is written here first through the app\'s realtime hooks — nothing downstream is authoritative over this.',
+        kv: [['Project ID','hallow-2c7e6'], ['Collections','customers, purchases, products'], ['Access pattern','onSnapshot listeners'], ['Written by','DebtPOS Enterprise (React / Vite)']]
       };
     }
-    return {
-      tag: 'Firestore mirror · collection', icon: 'bi-collection',
-      description: results ? `Latest recorded sync details for ${name} on the mirror project.` : `No completed sync recorded yet for ${name}. This will populate once the next scheduled slot runs.`,
-      kv: [['Collection', name], ['Destination project','nova-e6655'], ['Last results', results ? 'see raw payload' : 'none recorded']],
-      raw: results || undefined
-    };
+
+    if(key === 'firestoreMirror'){
+      if(!fs) return { tag:'Backup 1 · unreachable', icon:'bi-cloud-slash', description:`Couldn't reach ${ENDPOINTS.firestoreStatus}. ${STATE.firestoreError||''}`, kv:[['Endpoint', ENDPOINTS.firestoreStatus]] };
+      const lastRun = safe(()=>fs.lastRun, null);
+      const a = KNOWN_FS_SLOT.attempt;
+      const usingFallback = !lastRun;
+      return {
+        tag: 'Backup 1 · Firestore → Firestore', icon: 'bi-cloud-arrow-down',
+        description: usingFallback
+          ? `The /status endpoint doesn't report per-slot history, so this is the most recent completed slot recorded in Firestore itself (${KNOWN_FS_SLOT.docId}). It ran twice — 5:00 AM and, on the schedule, 5:00 PM PHT — with the 5:00 AM slot triggered by an incoming health check.`
+          : 'A second Firestore project that receives a full copy of every tracked collection on a schedule, using Admin SDK credentials on both ends.',
+        kv: [
+          ['Service', safe(()=>fs.service,'—')],
+          ['Polled at', safe(()=>fs.currentTimePHT,'—')],
+          ['Next backup', safe(()=>fs.nextBackup,'—')],
+          ['Currently running', safe(()=>fs.isRunning,false) ? 'yes' : 'no'],
+          ['Last completed slot', `${KNOWN_FS_SLOT.slotTimePHT} — ${a.status}`],
+          ['Triggered by', a.triggeredBy],
+          ['Duration', a.elapsedSeconds + 's'],
+          ['Reads / writes / deletes', `${a.totalReads.toLocaleString()} / ${a.totalWrites.toLocaleString()} / ${a.totalDeletes.toLocaleString()}`]
+        ],
+        raw: usingFallback ? { source:'Firestore console — __backup_metadata__/' + KNOWN_FS_SLOT.docId, slot: KNOWN_FS_SLOT } : fs
+      };
+    }
+
+    if(key === 'postgres'){
+      if(!pg) return { tag:'Backup 2 · unreachable', icon:'bi-cloud-slash', description:`Couldn't reach ${ENDPOINTS.postgresAdmin}. ${STATE.postgresError||''}`, kv:[['Endpoint', ENDPOINTS.postgresAdmin]] };
+      const slot = safe(()=>pg.currentSlot,{});
+      const attempts = safe(()=>slot.attempts,[]);
+      const latest = attempts[attempts.length-1];
+      return {
+        tag: 'Backup 2 · Firestore → PostgreSQL', icon: 'bi-server',
+        description: 'A daily export into a PostgreSQL instance on Aiven. This path holds no admin credentials — it reads Firestore the same way a browser would, governed entirely by security rules.',
+        kv: [
+          ['Backup time', safe(()=>pg.schedule.backupTimePHT,'—') + ' PHT'],
+          ['Grace hours', safe(()=>pg.schedule.graceHours,'—')],
+          ['Max attempts / hour', safe(()=>pg.schedule.maxAttemptsPerHour,'—')],
+          ['Slot status', safe(()=>slot.status,'—')],
+          ['Total attempts', safe(()=>slot.totalAttempts,'—')],
+          ['Next backup', safe(()=>pg.schedule.nextBackupAtPHT,'—')],
+          ['Latest run', latest ? `${latest.status} in ${latest.elapsedSeconds}s (${latest.triggeredBy})` : '—']
+        ],
+        raw: pg
+      };
+    }
+
+    if(key.startsWith('fs-')){
+      const name = key.slice(3);
+      if(!fs) return { tag:'Firestore mirror · unreachable', icon:'bi-cloud-slash', description:'Endpoint unreachable.', kv:[] };
+      const results = safe(()=> fs.lastResults, null);
+      const known = KNOWN_FS_SLOT.attempt.collections[name];
+      if(!results && known){
+        return {
+          tag: 'Firestore mirror · collection', icon: 'bi-collection',
+          description: known.status === 'no_changes'
+            ? `No changes were found for ${name} in the last completed slot — the collection was read to confirm it, then nothing was written.`
+            : `The last completed slot updated ${name}: ${known.writes} document${known.writes===1?'':'s'} written, ${known.deletes} removed to match what's no longer in the primary.`,
+          kv: [
+            ['Collection', name],
+            ['Destination project','nova-e6655'],
+            ['Slot', KNOWN_FS_SLOT.slotTimePHT],
+            ['Status', known.status],
+            ['Reads / writes / deletes', `${known.reads} / ${known.writes} / ${known.deletes}`]
+          ],
+          raw: { source:'Firestore console — __backup_metadata__/' + KNOWN_FS_SLOT.docId, ...known }
+        };
+      }
+      return {
+        tag: 'Firestore mirror · collection', icon: 'bi-collection',
+        description: results ? `Latest recorded sync details for ${name} on the mirror project.` : `No completed sync recorded yet for ${name}. This will populate once the next scheduled slot runs.`,
+        kv: [['Collection', name], ['Destination project','nova-e6655'], ['Last results', results ? 'see raw payload' : 'none recorded']],
+        raw: results || undefined
+      };
+    }
+
+    if(key.startsWith('pg-')){
+      const name = key.slice(3);
+      if(!pg) return { tag:'PostgreSQL · unreachable', icon:'bi-cloud-slash', description:'Endpoint unreachable.', kv:[] };
+      const c = safe(()=>pg.collections,[]).find(c=>c.collection===name);
+      if(!c) return { tag:'PostgreSQL · table', icon:'bi-table', description:`No row reported yet for backup_${name}.`, kv:[['Table', `backup_${name}`]] };
+      return {
+        tag: 'PostgreSQL · table', icon: 'bi-table',
+        description: `Rows in backup_${name} mirror the ${name} collection one document per row, with the full document body kept as JSONB.`,
+        kv: [
+          ['Table', `backup_${name}`],
+          ['Row count', (c.lastDocCount ?? '—').toLocaleString?.() ?? c.lastDocCount],
+          ['Last synced (UTC)', c.lastSyncedAt || '—'],
+          ['Reads / writes / deletes', `${safe(()=>c.lastSyncStats.reads,'—')} / ${safe(()=>c.lastSyncStats.writes,'—')} / ${safe(()=>c.lastSyncStats.deletes,'—')}`]
+        ],
+        raw: c
+      };
+    }
+
+    return null;
   }
 
-  if(key.startsWith('pg-')){
-    const name = key.slice(3);
-    if(!pg) return { tag:'PostgreSQL · unreachable', icon:'bi-cloud-slash', description:'Endpoint unreachable.', kv:[] };
-    const c = safe(()=>pg.collections,[]).find(c=>c.collection===name);
-    if(!c) return { tag:'PostgreSQL · table', icon:'bi-table', description:`No row reported yet for backup_${name}.`, kv:[['Table', `backup_${name}`]] };
-    return {
-      tag: 'PostgreSQL · table', icon: 'bi-table',
-      description: `Rows in backup_${name} mirror the ${name} collection one document per row, with the full document body kept as JSONB.`,
-      kv: [
-        ['Table', `backup_${name}`],
-        ['Row count', (c.lastDocCount ?? '—').toLocaleString?.() ?? c.lastDocCount],
-        ['Last synced (UTC)', c.lastSyncedAt || '—'],
-        ['Reads / writes / deletes', `${safe(()=>c.lastSyncStats.reads,'—')} / ${safe(()=>c.lastSyncStats.writes,'—')} / ${safe(()=>c.lastSyncStats.deletes,'—')}`]
-      ],
-      raw: c
-    };
+  document.querySelectorAll('.node').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const key = btn.dataset.key;
+      const d = buildDetail(key);
+      if(!d) return;
+      document.getElementById('detailTitle').textContent = btn.querySelector('.node-title').textContent;
+      const kvHtml = d.kv.map(([k,v])=>`<div class="kv-row"><span class="k">${k}</span><span class="v">${esc(v)}</span></div>`).join('');
+      document.getElementById('detailBody').innerHTML = `
+        <span class="detail-tag"><i class="bi ${d.icon}"></i> ${d.tag}</span>
+        <div class="detail-section"><p>${esc(d.description)}</p></div>
+        ${d.kv.length ? `<div class="detail-section"><h6>Details</h6><div class="kv-list">${kvHtml}</div></div>` : ''}
+        ${d.raw !== undefined ? `<div class="detail-section"><h6>Raw payload (live)</h6><div class="code-block">${prettyJSON(d.raw)}</div></div>` : ''}
+      `;
+      offcanvas.show();
+    });
+  });
+
+  document.getElementById('refreshBtn').addEventListener('click', refreshAll);
+
+  /* ============================================================
+     CLOCK
+  ============================================================ */
+  function tickClock(){
+    const el = document.getElementById('pht-clock');
+    const now = new Date();
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone:'Asia/Manila', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
+    }).formatToParts(now);
+    const get = t => parts.find(p=>p.type===t).value;
+    el.textContent = `${get('hour')}:${get('minute')}:${get('second')} PHT`;
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  /* ============================================================
+     THEME TOGGLE
+  ============================================================ */
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIcon = document.getElementById('themeIcon');
+  let currentTheme = localStorage.getItem('theme') || 'dark';
+
+  function applyTheme(theme){
+    document.documentElement.setAttribute('data-theme', theme);
+    themeIcon.className = theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+    localStorage.setItem('theme', theme);
+    currentTheme = theme;
   }
 
-  return null;
-}
-
-document.querySelectorAll('.node').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const key = btn.dataset.key;
-    const d = buildDetail(key);
-    if(!d) return;
-    document.getElementById('detailTitle').textContent = btn.querySelector('.node-title').textContent;
-    const kvHtml = d.kv.map(([k,v])=>`<div class="kv-row"><span class="k">${k}</span><span class="v">${esc(v)}</span></div>`).join('');
-    document.getElementById('detailBody').innerHTML = `
-      <span class="detail-tag"><i class="bi ${d.icon}"></i> ${d.tag}</span>
-      <div class="detail-section"><p>${esc(d.description)}</p></div>
-      ${d.kv.length ? `<div class="detail-section"><h6>Details</h6><div class="kv-list">${kvHtml}</div></div>` : ''}
-      ${d.raw !== undefined ? `<div class="detail-section"><h6>Raw payload (live)</h6><div class="code-block">${prettyJSON(d.raw)}</div></div>` : ''}
-    `;
-    offcanvas.show();
+  themeToggle.addEventListener('click', ()=>{
+    applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
   });
-});
 
-document.getElementById('refreshBtn').addEventListener('click', refreshAll);
+  // initial
+  applyTheme(currentTheme);
 
-/* ============================================================
-   PHT CLOCK
-============================================================ */
-function tickClock(){
-  const el = document.getElementById('pht-clock');
-  const now = new Date();
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone:'Asia/Manila', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
-  }).formatToParts(now);
-  const get = t => parts.find(p=>p.type===t).value;
-  el.textContent = `${get('hour')}:${get('minute')}:${get('second')} PHT`;
-}
-tickClock();
-setInterval(tickClock, 1000);
+  /* ============================================================
+     CONNECTOR LINES
+  ============================================================ */
+  const wrap = document.getElementById('topoWrap');
+  const svg = document.getElementById('connectorSvg');
+  const labelLayer = (()=>{
+    const d = document.createElement('div');
+    d.style.position='absolute'; d.style.inset='0'; d.style.pointerEvents='none';
+    wrap.appendChild(d);
+    return d;
+  })();
 
-/* ============================================================
-   CONNECTOR LINES (SVG, recomputed on resize)
-============================================================ */
-const wrap = document.getElementById('topoWrap');
-const svg = document.getElementById('connectorSvg');
-const labelLayer = (()=>{
-  const d = document.createElement('div');
-  d.style.position='absolute'; d.style.inset='0'; d.style.pointerEvents='none';
-  wrap.appendChild(d);
-  return d;
-})();
-
-function centerOf(el, wrapRect, edge){
-  const r = el.getBoundingClientRect();
-  const x = r.left + r.width/2 - wrapRect.left;
-  const y = edge === 'top' ? r.top - wrapRect.top : r.bottom - wrapRect.top;
-  return {x,y};
-}
-
-function bezierPath(a, b){
-  const midY = (a.y + b.y) / 2;
-  return `M ${a.x} ${a.y} C ${a.x} ${midY}, ${b.x} ${midY}, ${b.x} ${b.y}`;
-}
-
-function makeEdge(fromEl, toEl, cls, marker, label, labelCls){
-  const wrapRect = wrap.getBoundingClientRect();
-  const a = centerOf(fromEl, wrapRect, 'bottom');
-  const b = centerOf(toEl, wrapRect, 'top');
-  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
-  path.setAttribute('d', bezierPath(a,b));
-  path.setAttribute('class', 'flow ' + cls);
-  path.setAttribute('stroke', cls==='fs' ? 'var(--amber-line)' : cls==='pg' ? 'var(--blue-line)' : 'var(--neutral-line)');
-  path.setAttribute('marker-end', `url(#${marker})`);
-  svg.appendChild(path);
-
-  if(label){
-    const lbl = document.createElement('div');
-    lbl.className = 'edge-label ' + (labelCls||'');
-    lbl.textContent = label;
-    lbl.style.left = ((a.x+b.x)/2) + 'px';
-    lbl.style.top = ((a.y+b.y)/2) + 'px';
-    labelLayer.appendChild(lbl);
+  function centerOf(el, wrapRect, edge){
+    const r = el.getBoundingClientRect();
+    const x = r.left + r.width/2 - wrapRect.left;
+    const y = edge === 'top' ? r.top - wrapRect.top : r.bottom - wrapRect.top;
+    return {x,y};
   }
-}
 
-function drawTopology(){
-  svg.querySelectorAll('path.flow').forEach(p=>p.remove());
-  labelLayer.innerHTML = '';
+  function bezierPath(a, b){
+    const midY = (a.y + b.y) / 2;
+    return `M ${a.x} ${a.y} C ${a.x} ${midY}, ${b.x} ${midY}, ${b.x} ${b.y}`;
+  }
 
-  const root = document.querySelector('[data-key="primary"]');
-  const fsBranch = document.querySelector('[data-key="firestoreMirror"]');
-  const pgBranch = document.querySelector('[data-key="postgres"]');
+  function makeEdge(fromEl, toEl, cls, marker, label, labelCls){
+    const wrapRect = wrap.getBoundingClientRect();
+    const a = centerOf(fromEl, wrapRect, 'bottom');
+    const b = centerOf(toEl, wrapRect, 'top');
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', bezierPath(a,b));
+    path.setAttribute('class', 'flow ' + cls);
+    path.setAttribute('stroke', cls==='fs' ? 'var(--amber-line)' : cls==='pg' ? 'var(--blue-line)' : 'var(--neutral-line)');
+    path.setAttribute('marker-end', `url(#${marker})`);
+    svg.appendChild(path);
 
-  const fsLabel = safe(()=>STATE.firestore.nextBackup ? `05:00 & ${STATE.firestore.nextBackup.split(', ')[1]}` : 'schedule unknown', 'connecting…');
-  const pgLabel = safe(()=>STATE.postgres.schedule.backupTimePHT ? `daily ${STATE.postgres.schedule.backupTimePHT} PHT` : 'schedule unknown', 'connecting…');
+    if(label){
+      const lbl = document.createElement('div');
+      lbl.className = 'edge-label ' + (labelCls||'');
+      lbl.textContent = label;
+      lbl.style.left = ((a.x+b.x)/2) + 'px';
+      lbl.style.top = ((a.y+b.y)/2) + 'px';
+      labelLayer.appendChild(lbl);
+    }
+  }
 
-  makeEdge(root, fsBranch, 'neutral', 'arrow-neutral', fsLabel, 'fs');
-  makeEdge(root, pgBranch, 'neutral', 'arrow-neutral', pgLabel, 'pg');
+  function drawTopology(){
+    svg.querySelectorAll('path.flow').forEach(p=>p.remove());
+    labelLayer.innerHTML = '';
 
-  ['fs-customers','fs-purchases','fs-products'].forEach(k=>{
-    makeEdge(fsBranch, document.querySelector(`[data-key="${k}"]`), 'fs', 'arrow-fs', null);
-  });
-  ['pg-customers','pg-purchases','pg-products'].forEach(k=>{
-    makeEdge(pgBranch, document.querySelector(`[data-key="${k}"]`), 'pg', 'arrow-pg', null);
-  });
-}
+    const root = document.querySelector('[data-key="primary"]');
+    const fsBranch = document.querySelector('[data-key="firestoreMirror"]');
+    const pgBranch = document.querySelector('[data-key="postgres"]');
 
-let resizeTimer;
-function scheduleRedraw(){
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(drawTopology, 60);
-}
+    const fsLabel = safe(()=>STATE.firestore.nextBackup ? `05:00 & ${STATE.firestore.nextBackup.split(', ')[1]}` : 'schedule unknown', 'connecting…');
+    const pgLabel = safe(()=>STATE.postgres.schedule.backupTimePHT ? `daily ${STATE.postgres.schedule.backupTimePHT} PHT` : 'schedule unknown', 'connecting…');
 
-window.addEventListener('resize', scheduleRedraw);
-if(document.fonts && document.fonts.ready){
-  document.fonts.ready.then(drawTopology);
-}
-new ResizeObserver(scheduleRedraw).observe(wrap);
-drawTopology();
+    makeEdge(root, fsBranch, 'neutral', 'arrow-neutral', fsLabel, 'fs');
+    makeEdge(root, pgBranch, 'neutral', 'arrow-neutral', pgLabel, 'pg');
 
-/* kick off live data + poll every 60s */
-refreshAll();
-setInterval(refreshAll, 60000);
+    ['fs-customers','fs-purchases','fs-products'].forEach(k=>{
+      makeEdge(fsBranch, document.querySelector(`[data-key="${k}"]`), 'fs', 'arrow-fs', null);
+    });
+    ['pg-customers','pg-purchases','pg-products'].forEach(k=>{
+      makeEdge(pgBranch, document.querySelector(`[data-key="${k}"]`), 'pg', 'arrow-pg', null);
+    });
+  }
+
+  let resizeTimer;
+  function scheduleRedraw(){
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(drawTopology, 60);
+  }
+
+  window.addEventListener('resize', scheduleRedraw);
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(drawTopology);
+  }
+  new ResizeObserver(scheduleRedraw).observe(wrap);
+  drawTopology();
+
+  /* kick off live data + poll every 60s */
+  refreshAll();
+  setInterval(refreshAll, 60000);
 </script>
 </body>
 </html>
